@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             //TextField for input;
             TextField(controller: _controllerLogin,
-              obscureText: true,
+              obscureText: false,
               decoration: InputDecoration(
                   hintText: "Login",
                   border: OutlineInputBorder(),
