@@ -36,6 +36,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _controllerPass;
   var _currentImage = "images/question-mark.png";
 
+
+
   //function to change the images;
   void changeImage() {
     setState(() {
@@ -63,7 +65,42 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
+  void _processYES(BuildContext context){
+    Navigator.of(context).pop();
+    var snackBar = SnackBar(content: Text('YES Clicked'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
+  void _processNO(BuildContext context){
+    Navigator.of(context).pop();
+    var snackBar = SnackBar(content: Text('NO Clicked'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  AlertDialog displayDialog(BuildContext context) {
+    return AlertDialog(
+      title: const Text('AlertDialog'),
+      content: const Text('Press YES or NO to continue ...'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            _processNO(context);
+          },
+          child: const Text('NO'),
+        ),
+        TextButton(
+          onPressed: () {
+            _processYES(context);
+          },
+          child: Container(
+            color: Colors.blueAccent,
+            //padding: const EdgeInsets.all(14),
+            child: const Text("YES"),
+          ),
+        ),
+      ],
+    );
+  }
   Widget build(BuildContext context) {
 
     return Scaffold(
@@ -96,8 +133,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
 
             //Login button;
-            ElevatedButton(onPressed: changeImage,
-                child: Text('Login')),
+            ElevatedButton(onPressed:  () =>
+                showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => displayDialog(context)
+                ),
+                child: Text ('Login',
+                style: TextStyle(fontSize: 30, color: Colors.blueAccent),
+                ),
+            ),
 
             //Images to show login features;
             Image.asset(_currentImage,width: 300,height: 300,),
