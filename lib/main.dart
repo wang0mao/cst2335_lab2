@@ -13,12 +13,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Lab4 Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      debugShowCheckedModeBanner: false,
+      home: const MyHomePage(title: 'CST2335 Lab4'),
     );
   }
 }
@@ -105,18 +106,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-
   void _processYES(BuildContext context){
-    //Navigator.of(context).pop();
-    //var snackBar = SnackBar(content: Text('YES Clicked'));
-    //ScaffoldMessenger.of(context).showSnackBar(snackBar);
     savePrefs(context);
   }
 
   void _processNO(BuildContext context){
     Navigator.of(context).pop();
-    var snackBar = SnackBar(content: Text('NO Clicked'));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    //var snackBar = SnackBar(content: Text('NO Clicked'));
+    //ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    setState(() {
+      _currentImage = "images/idea.png";
+      _controllerLogin.text = '';
+      _controllerPass.text = '';
+    });
   }
 
   AlertDialog displayDialog(BuildContext context) {
@@ -175,11 +177,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
 
             //Login button;
-            ElevatedButton(onPressed:  () =>
+            ElevatedButton(onPressed:  () =>{
                 showDialog<String>(
                     context: context,
                     builder: (BuildContext context) => displayDialog(context)
                 ),
+                changeImage(),},
                 child: Text ('Login',
                 style: TextStyle(fontSize: 30, color: Colors.blueAccent),
                 ),
