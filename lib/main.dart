@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //load the username/password to the variables;
     username = prefs.getString('username') ?? '';
     password = prefs.getString('password') ?? '';
-    if (username == 'abc'){
+    if (username != ''){
       //if the user name is the one saved, load username/password to textfield;
       _controllerLogin.text = username;
       _controllerPass.text = password;
