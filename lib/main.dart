@@ -1,3 +1,4 @@
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -69,31 +70,33 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
+    //load the username/password to the variables;
     username = prefs.getString('username') ?? '';
     password = prefs.getString('password') ?? '';
-    //if (username == 'abc'){
-      //_controllerLogin.text = username;
-      //_controllerPass.text = password;
+    if (username == 'abc'){
+      //if the user name is the one saved, load username/password to textfield;
+      _controllerLogin.text = username;
+      _controllerPass.text = password;
       var snackBar = SnackBar(
-          //_controllerLogin.text  = username;
-          //_controllerPass.text = password;
-        content: Text('content loaded $username,$password'),
-        duration: Duration(seconds: 3),
+        content: Text('Username Loaded: $username'),
+        //duration: Duration(seconds: 3),
         action: SnackBarAction(label: 'Undo',
             onPressed: (){
+              //clear text field if undo is pressed;
               _controllerLogin.text = '';
               _controllerPass.text = '';
             }
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);}
-  //}
+    }
 
   Future<void> savePrefs(BuildContext context) async {
     Navigator.of(context).pop();
-    SharedPreferences.getInstance().then( (prefs) {
-      prefs.setString('username', 'abc');
-      prefs.setString('password', '123');
+    EncryptedSharedPreferences prefs1 = EncryptedSharedPreferences();
+    SharedPreferences.getInstance().then( (prefs1) {
+      prefs1.setString('username', _controllerLogin.value.text);
+      prefs1.setString('password', _controllerPass.value.text);
       var snackBar = SnackBar(
         content: Text('username/password saved'),
         duration: Duration(seconds: 3),
