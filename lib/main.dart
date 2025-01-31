@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,8 +36,23 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _controllerLogin;
   late TextEditingController _controllerPass;
   var _currentImage = "images/question-mark.png";
+  var username='';
+  var password='';
 
+  @override
+  void initState(){
+    super.initState();
+    _controllerLogin = TextEditingController();
+    _controllerPass = TextEditingController();
+    loadPrefs();
+  }
 
+  @override
+  void dispose(){
+    _controllerLogin.dispose();
+    _controllerPass.dispose();
+    super.dispose();
+  }
 
   //function to change the images;
   void changeImage() {
@@ -51,24 +67,47 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  @override
+  Future<void> loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    username = prefs.getString('username') ?? '';
+    password = prefs.getString('password') ?? '';
+    //if (username == 'abc'){
+      //_controllerLogin.text = username;
+      //_controllerPass.text = password;
+      var snackBar = SnackBar(
+          //_controllerLogin.text  = username;
+          //_controllerPass.text = password;
+        content: Text('content loaded $username,$password'),
+        duration: Duration(seconds: 3),
+        action: SnackBarAction(label: 'Undo',
+            onPressed: (){
+              _controllerLogin.text = '';
+              _controllerPass.text = '';
+            }
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);}
+  //}
 
-  void initState(){
-    super.initState();
-    _controllerLogin = TextEditingController();
-    _controllerPass = TextEditingController();
+  Future<void> savePrefs(BuildContext context) async {
+    Navigator.of(context).pop();
+    SharedPreferences.getInstance().then( (prefs) {
+      prefs.setString('username', 'abc');
+      prefs.setString('password', '123');
+      var snackBar = SnackBar(
+        content: Text('username/password saved'),
+        duration: Duration(seconds: 3),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
   }
 
-  void dispose(){
-    _controllerLogin.dispose();
-    _controllerPass.dispose();
-    super.dispose();
-  }
 
   void _processYES(BuildContext context){
-    Navigator.of(context).pop();
-    var snackBar = SnackBar(content: Text('YES Clicked'));
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    //Navigator.of(context).pop();
+    //var snackBar = SnackBar(content: Text('YES Clicked'));
+    //ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    savePrefs(context);
   }
 
   void _processNO(BuildContext context){
@@ -79,8 +118,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   AlertDialog displayDialog(BuildContext context) {
     return AlertDialog(
-      title: const Text('AlertDialog'),
-      content: const Text('Press YES or NO to continue ...'),
+      title: const Text('Save the username/password?'),
+      content: const Text('Press YES or NO to save or not ...'),
       actions: <Widget>[
         TextButton(
           onPressed: () {
