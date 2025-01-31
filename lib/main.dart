@@ -106,19 +106,25 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+
+
   void _processYES(BuildContext context){
     savePrefs(context);
   }
 
   void _processNO(BuildContext context){
     Navigator.of(context).pop();
-    //var snackBar = SnackBar(content: Text('NO Clicked'));
-    //ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    SharedPreferences.getInstance().then( (prefs){
+        prefs.remove('username');
+        prefs.remove('password');
+    });
     setState(() {
-      _currentImage = "images/idea.png";
+      _currentImage = "images/question-mark.png";
       _controllerLogin.text = '';
       _controllerPass.text = '';
     });
+    var snackBar = SnackBar(content: Text('username/password has been removed.'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   AlertDialog displayDialog(BuildContext context) {
@@ -130,15 +136,18 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () {
             _processNO(context);
           },
-          child: const Text('NO'),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            child: const Text('NO'),
+          )
         ),
         TextButton(
           onPressed: () {
             _processYES(context);
           },
           child: Container(
-            color: Colors.blueAccent,
-            //padding: const EdgeInsets.all(14),
+            //color: Colors.blueAccent,
+            padding: const EdgeInsets.all(14),
             child: const Text("YES"),
           ),
         ),
