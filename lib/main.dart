@@ -13,13 +13,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lab4 Demo',
+      title: 'Lab4 Demo _ Wenchao Wang',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(title: 'CST2335 Lab4'),
+      home: const MyHomePage(title: 'CST2335 Lab4 for Wenchao Wang'),
     );
   }
 }
@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //function to change the images;
   void changeImage() {
     setState(() {
-      if (_controllerPass.value.text == "QWERTY123"){
+      if (_controllerPass.value.text == "123"){
         _currentImage = "images/idea.png";
       } else if (_controllerPass.value.text == ""){
         _currentImage = "images/question-mark.png";
@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _controllerLogin.text = username;
       _controllerPass.text = password;
       var snackBar = SnackBar(
-        content: Text('Username Loaded: $username'),
+        content: Text('Credential Loaded: Login:$username, Password:$password'),
         //duration: Duration(seconds: 3),
         action: SnackBarAction(label: 'Undo',
             onPressed: (){
@@ -99,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
       prefs1.setString('username', _controllerLogin.value.text);
       prefs1.setString('password', _controllerPass.value.text);
       var snackBar = SnackBar(
-        content: Text('username/password saved'),
+        content: Text('Credentials saved'),
         duration: Duration(seconds: 3),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -123,14 +123,14 @@ class _MyHomePageState extends State<MyHomePage> {
       _controllerLogin.text = '';
       _controllerPass.text = '';
     });
-    var snackBar = SnackBar(content: Text('username/password has been removed.'));
+    var snackBar = SnackBar(content: Text('Credentials have been removed.'));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   AlertDialog displayDialog(BuildContext context) {
     return AlertDialog(
       title: const Text('Save the username/password?'),
-      content: const Text('Press YES or NO to save or not ...'),
+      content: const Text('Press YES or NO to save or remove ...'),
       actions: <Widget>[
         TextButton(
           onPressed: () {
