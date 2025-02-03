@@ -38,8 +38,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _controllerLogin;
   late TextEditingController _controllerPass;
   var _currentImage = "images/question-mark.png";
-  var username='';
-  var password='';
+  var username;
+  var password;
 
   @override
   void initState(){
@@ -70,11 +70,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> loadPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    //final prefs = await SharedPreferences.getInstance();
+    final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+    username = await prefs.getString('username') ?? '';
+    password = await prefs.getString('password') ?? '';
+    setState(() {
     //load the username/password to the variables;
-    username = prefs.getString('username') ?? '';
-    password = prefs.getString('password') ?? '';
-    if (username != ''){
+    if (username != ""){
       //if the user name is the one saved, load username/password to textfield;
       _controllerLogin.text = username;
       _controllerPass.text = password;
@@ -90,19 +92,27 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);}
+    });
     }
 
+
   Future<void> savePrefs(BuildContext context) async {
+    //final prefs = await SharedPreferences.getInstance();
+    final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+    await prefs.setString('username', _controllerLogin.value.text);
+    await prefs.setString('password', _controllerPass.value.text);
+    setState(() {
+     //final EncryptedSharedPreferences prefs1 = EncryptedSharedPreferences();
     Navigator.of(context).pop();
-    EncryptedSharedPreferences prefs1 = EncryptedSharedPreferences();
-    SharedPreferences.getInstance().then( (prefs1) {
-      prefs1.setString('username', _controllerLogin.value.text);
-      prefs1.setString('password', _controllerPass.value.text);
+     //SharedPreferences.getInstance().then( (prefs)
+     {
       var snackBar = SnackBar(
         content: Text('Credentials saved'),
         duration: Duration(seconds: 3),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+    //);
     });
   }
 
