@@ -38,6 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late TextEditingController _controllerLogin;
   late TextEditingController _controllerPass;
   var _currentImage = "images/question-mark.png";
+  final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
   var username;
   var password;
 
@@ -71,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> loadPrefs() async {
     //final prefs = await SharedPreferences.getInstance();
-    final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+    //final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
     username = await prefs.getString('username') ?? '';
     password = await prefs.getString('password') ?? '';
     setState(() {
@@ -98,7 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> savePrefs(BuildContext context) async {
     //final prefs = await SharedPreferences.getInstance();
-    final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+    //final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
     await prefs.setString('username', _controllerLogin.value.text);
     await prefs.setString('password', _controllerPass.value.text);
     setState(() {
