@@ -1,3 +1,4 @@
+import 'package:cst2335_lab2/ProfilePage.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,14 +14,36 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lab4 Demo _ Wenchao Wang',
+      title: 'Lab5 Demo _ Wenchao Wang',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(title: 'CST2335 Lab4 for Wenchao Wang'),
+
+      initialRoute: '/',
+      routes: {
+        //'/':(context) => ,
+        //'/second': (context) => const SecondScreen(),
+        '/ProfilePage':(context) => ProfilePage(),
+      },
+
+      home: const MyHomePage(title: 'CST2335 Lab5 for Home Page'),
     );
+  }
+}
+
+class DataRepository{
+  static String loginName='';
+  static String firstName='';
+  static String lastName='';
+  static String phoneNumber = '';
+  static String email = '';
+  static void loadData(EncryptedSharedPreferences prefs) async{
+    loginName = await prefs.getString('username');
+  }
+  static void saveData(EncryptedSharedPreferences prefs) async{
+
   }
 }
 
@@ -48,6 +71,8 @@ class _MyHomePageState extends State<MyHomePage> {
     _controllerLogin = TextEditingController();
     _controllerPass = TextEditingController();
     loadPrefs();
+    DataRepository.loadData(prefs);
+    DataRepository.saveData(prefs);
   }
 
   @override
@@ -109,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
      {
       var snackBar = SnackBar(
         content: Text('Credentials saved'),
-        duration: Duration(seconds: 3),
+        duration: Duration(seconds: 2),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
@@ -117,10 +142,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-
-
   void _processYES(BuildContext context){
+    //Navigator.of(context).pop();
     savePrefs(context);
+  }
+
+  void _processNext(BuildContext context){
+    Navigator.of(context).pop();
+    //DataRepository.loginName = username;
+    Navigator.pushNamed(context, '/ProfilePage');
   }
 
   void _processNO(BuildContext context){
@@ -160,6 +190,18 @@ class _MyHomePageState extends State<MyHomePage> {
             //color: Colors.blueAccent,
             padding: const EdgeInsets.all(14),
             child: const Text("YES"),
+
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            _processNext(context);
+          },
+          child: Container(
+            //color: Colors.blueAccent,
+            padding: const EdgeInsets.all(14),
+            child: const Text("NextPage"),
+
           ),
         ),
       ],
