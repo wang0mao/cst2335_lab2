@@ -1,3 +1,4 @@
+import 'package:cst2335_lab2/DataRepository.dart';
 import 'package:cst2335_lab2/ProfilePage.dart';
 import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -33,19 +34,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class DataRepository{
-  static String loginName='';
-  static String firstName='';
-  static String lastName='';
-  static String phoneNumber = '';
-  static String email = '';
-  static void loadData(EncryptedSharedPreferences prefs) async{
-    loginName = await prefs.getString('username');
-  }
-  static void saveData(EncryptedSharedPreferences prefs) async{
-
-  }
-}
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -71,8 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
     _controllerLogin = TextEditingController();
     _controllerPass = TextEditingController();
     loadPrefs();
-    DataRepository.loadData(prefs);
-    DataRepository.saveData(prefs);
+    DataRepository.loadData();
+    DataRepository.saveData();
   }
 
   @override
@@ -83,6 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   //function to change the images;
+
   void changeImage() {
     setState(() {
       if (_controllerPass.value.text == "123"){
@@ -147,10 +136,20 @@ class _MyHomePageState extends State<MyHomePage> {
     savePrefs(context);
   }
 
-  void _processNext(BuildContext context){
+  void _processNext(BuildContext context) async{
     Navigator.of(context).pop();
+    username = await prefs.getString('username') ?? '';
+    password = await prefs.getString('password') ?? '';
+
+    if( username ==_controllerLogin.text && password == _controllerPass.text ){
     //DataRepository.loginName = username;
     Navigator.pushNamed(context, '/ProfilePage');
+    } else {
+      var snackBar = SnackBar(content: Text('Username or Password incorrect.'),
+        duration: Duration(seconds: 2),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
   void _processNO(BuildContext context){
