@@ -1,3 +1,4 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:cst2335_lab2/DataRepository.dart';
 import 'package:cst2335_lab2/main.dart';
 import 'package:flutter/cupertino.dart';
@@ -57,11 +58,14 @@ class ProfilePageState extends State<ProfilePage> {
   }
 
   void _processNO(context){
+    Navigator.of(context).pop();
     _controllerFN.text = '';
     _controllerLN.text = '';
     _controllerPhone.text = '';
     _controllerEmail.text = '';
-
+    DataRepository.removeData();
+    var snackBar = SnackBar(content: Text('Context have been removed.'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _processUndo(context){
@@ -147,13 +151,20 @@ class ProfilePageState extends State<ProfilePage> {
     setState(() {
       if (username != ""){
         //if the user name is the one saved, load username/password to textfield;
+        /*
         var snackBar = SnackBar(
           content: Text('Welcome Back: '+ username),
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.fromLTRB(20,0,20,0),
           duration: Duration(seconds: 2),
         );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);*/
+        Flushbar(
+          duration: Duration(seconds:2),
+          flushbarPosition: FlushbarPosition.TOP,
+          flushbarStyle: FlushbarStyle.FLOATING,
+          message: 'Welcome Back: '+ username,
+        ).show(context);
       }
     });
   }
