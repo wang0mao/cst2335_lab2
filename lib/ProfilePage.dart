@@ -67,7 +67,7 @@ class ProfilePageState extends State<ProfilePage> {
     var snackBar = SnackBar(content: Text('Context have been removed.'));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
-
+/*
   void _processUndo(context){
     Navigator.of(context).pop();
 
@@ -75,7 +75,7 @@ class ProfilePageState extends State<ProfilePage> {
     _controllerLN.text = '';
     _controllerPhone.text = '';
     _controllerEmail.text = '';
-  }
+  }*/
 
   void _processYES(context){
       DataRepository.firstName = _controllerFN.text;
