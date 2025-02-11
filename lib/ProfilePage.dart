@@ -13,12 +13,14 @@ class ProfilePage extends StatefulWidget {
 
 class ProfilePageState extends State<ProfilePage> {
 
+  //control input of the textfield;
   late TextEditingController _controllerFN;
   late TextEditingController _controllerLN;
   late TextEditingController _controllerPhone;
   late TextEditingController _controllerEmail;
   FocusNode _focusNode = FocusNode();
   //final EncryptedSharedPreferences prefs = EncryptedSharedPreferences();
+  //control index of bottomnavigationbar;(not used);
   var index = 0;
   var username; //,password;
 
@@ -32,19 +34,21 @@ class ProfilePageState extends State<ProfilePage> {
 
     //load data into the textfield;
     DataRepository.loadData();
-    if(_controllerFN !=''){
+    if(DataRepository.firstName !=''){
       _controllerFN.text = DataRepository.firstName;
     }
-    if(_controllerLN !=''){
+    if(DataRepository.lastName !=''){
       _controllerLN.text = DataRepository.lastName;
     }
-    if(_controllerPhone !=''){
+    if(DataRepository.phoneNumber !=''){
       _controllerPhone.text = DataRepository.phoneNumber;
     }
-    if(_controllerEmail !=''){
+    if(DataRepository.email !=''){
       _controllerEmail.text = DataRepository.email;
     }
+    //flush bar from the top;
     welcomeMessage(context);
+    //listener for losing focus to save data;
     _focusNode.addListener(_onFocusChange);
   }
 
@@ -78,6 +82,7 @@ class ProfilePageState extends State<ProfilePage> {
   }*/
 
   void _processYES(context){
+    //assign data to datafield, then save data to sharedpreferences;
       DataRepository.firstName = _controllerFN.text;
       DataRepository.lastName = _controllerLN.text;
       DataRepository.phoneNumber = _controllerPhone.text;
@@ -134,7 +139,7 @@ class ProfilePageState extends State<ProfilePage> {
   }
 
   @override
-  void dispose(){
+  void dispose(){//release garbage
     _controllerFN.dispose();
     _focusNode.removeListener(_onFocusChange);
     _focusNode.dispose();
@@ -150,15 +155,6 @@ class ProfilePageState extends State<ProfilePage> {
      username =  await DataRepository.loginName;
     setState(() {
       if (username != ""){
-        //if the user name is the one saved, load username/password to textfield;
-        /*
-        var snackBar = SnackBar(
-          content: Text('Welcome Back: '+ username),
-          behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.fromLTRB(20,0,20,0),
-          duration: Duration(seconds: 2),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);*/
         Flushbar(
           duration: Duration(seconds:2),
           flushbarPosition: FlushbarPosition.TOP,
