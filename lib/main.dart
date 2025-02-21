@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,19 +13,19 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'CST2335 Samples',
       theme: ThemeData(
+        // This is the theme of your application.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Week 6 - ListView'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
   final String title;
 
   @override
@@ -31,78 +33,80 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //var _counter = 0;
-  late TextEditingController _controllerLogin;
-  late TextEditingController _controllerPass;
-  var _currentImage = "images/question-mark.png";
+  var wordsArray = <String>[ ];
 
-  //function to change the images;
-  void changeImage() {
-    setState(() {
-      if (_controllerPass.value.text == "QWERTY123"){
-        _currentImage = "images/idea.png";
-      } else if (_controllerPass.value.text == ""){
-        _currentImage = "images/question-mark.png";
-      } else{
-        _currentImage = "images/stop.png";
-      }
-    });
+  @override //same as in java
+  void initState() {
+    super.initState(); //call the parent initState()
   }
 
   @override
-
-  void initState(){
-    super.initState();
-    _controllerLogin = TextEditingController();
-    _controllerPass = TextEditingController();
-  }
-
-  void dispose(){
-    _controllerLogin.dispose();
-    _controllerPass.dispose();
+  void dispose()
+  {
     super.dispose();
   }
 
-
+  @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            //TextField for input;
-            TextField(controller: _controllerLogin,
-              obscureText: true,
-              decoration: InputDecoration(
-                  hintText: "Login",
-                  border: OutlineInputBorder(),
-                  labelText: "Login",
-              ),
-            ),
+        appBar: AppBar( backgroundColor: Theme.of(context).colorScheme.inversePrimary, title: Text(widget.title)),
+        body: ListPage(),
+        floatingActionButton:
+        FloatingActionButton(onPressed: addItem,
+            tooltip: 'Add Item',
+            child: const Icon(Icons.add)
+        )
+    );
+  }
 
-            //TextField for password;
-            TextField(controller: _controllerPass,
-              obscureText: true,
-              decoration: InputDecoration(
-                  hintText: "Password",
-                  border: OutlineInputBorder(),
-                  labelText: "Password",
-              ),
-            ),
+  void addItem() {
+    setState(() {
+      wordsArray.add("Item " + " ${wordsArray.length+1}");
+    });
+  }
 
-            //Login button;
-            ElevatedButton(onPressed: changeImage,
-                child: Text('Login')),
-
-            //Images to show login features;
-            Image.asset(_currentImage,width: 300,height: 300,),
-          ],
-        ),
+  Widget ListPage(){
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(child:
+          ListView.builder(
+              itemCount:wordsArray.length,
+              itemBuilder: (context, rowNum) { return
+                Row( mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children:[
+                      Text("${1+rowNum}: ${wordsArray[rowNum]} "),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            wordsArray[rowNum] = wordsArray[rowNum].toUpperCase();
+                          });
+                        },
+                        child: const Icon(Icons.arrow_upward),
+                      ),
+                      GestureDetector(
+                        onDoubleTap: () {
+                          setState(() {
+                            wordsArray[rowNum] = wordsArray[rowNum].toLowerCase();
+                          });
+                        },
+                        child: const Icon(Icons.arrow_downward),
+                      ),
+                      GestureDetector(
+                        onLongPress: () {
+                          setState(() {
+                            wordsArray.removeAt(rowNum);
+                          });
+                        },
+                        child: const Icon(Icons.delete),
+                      ),
+                    ]
+                );
+              }
+          ),
+          ),
+        ],
       ),
     );
   }
