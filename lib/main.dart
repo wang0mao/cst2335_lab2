@@ -34,34 +34,67 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var wordsArray = <String>[ ];
+  late TextEditingController _controllerItem;
+  late TextEditingController _controllerQuantity;
 
-  @override //same as in java
-  void initState() {
-    super.initState(); //call the parent initState()
+  @override
+
+  void initState(){
+    super.initState();
+    _controllerItem = TextEditingController();
+    _controllerQuantity = TextEditingController();
   }
 
   @override
-  void dispose()
-  {
+  void dispose(){
+    _controllerItem.dispose();
+    _controllerQuantity.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar( backgroundColor: Theme.of(context).colorScheme.inversePrimary, title: Text(widget.title)),
-        body: ListPage(),
-        floatingActionButton:
-        FloatingActionButton(onPressed: addItem,
-            tooltip: 'Add Item',
-            child: const Icon(Icons.add)
-        )
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              //TextField for input;
+              TextField(controller: _controllerItem,
+                obscureText: false,
+                decoration: InputDecoration(
+                  hintText: "Type the item here",
+                  border: OutlineInputBorder(),
+                  labelText: "Items",
+                ),
+              ),
+
+              //TextField for password;
+              TextField(controller: _controllerQuantity,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: "Type the quantity here",
+                  border: OutlineInputBorder(),
+                  labelText: "Quantities",
+                ),
+              ),
+
+              //Login button;
+              ElevatedButton(onPressed: addItem,
+                  child: Text('Click here')),
+
+              ListPage(),
+            ],
+          ),
+        ),
     );
   }
 
   void addItem() {
     setState(() {
-      wordsArray.add("Item " + " ${wordsArray.length+1}");
+      wordsArray.add("${wordsArray.length+1}: "+ _controllerItem.text +" quantity: "+_controllerQuantity.text);
     });
   }
 
