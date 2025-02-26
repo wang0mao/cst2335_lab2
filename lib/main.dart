@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CST2335 Samples',
+      title: 'CST2335 Labs',
       theme: ThemeData(
         // This is the theme of your application.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -52,95 +52,183 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
+  void _processNO(BuildContext context){
+    Navigator.of(context).pop();
+  }
 
-  @override
+  void _processYES(BuildContext context,int rowNum){
+    Navigator.of(context).pop();
+
+    setState(() {
+      wordsArray.removeAt(rowNum);
+      if (wordsArray.isEmpty) {
+        displayTextDialog(context);
+      }
+    });
+
+  }
+void _processOK(context){
+  Navigator.of(context).pop();
+}
+
+  void displayTextDialog(BuildContext context) {
+    showDialog(context: context, builder: (BuildContext context)
+    {
+      return AlertDialog(
+        title: const Text('EMPTY'),
+        content: const Text('There are no items in the list'),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () {
+                _processOK(context);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                child: const Text('Okay'),
+              )
+          ),
+        ],
+      );
+    },
+    );
+  }
+
+  void displayDialog(BuildContext context,int rowNum) {
+    showDialog(context: context, builder: (BuildContext context)
+      {
+      return AlertDialog(
+        title: const Text('Delete or Not?'),
+        content: const Text('Press YES or NO to delete.'),
+        actions: <Widget>[
+          TextButton(
+              onPressed: () {
+                _processNO(context);
+              },
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                child: const Text('NO'),
+              )
+          ),
+          TextButton(
+            onPressed: () {
+              _processYES(context, rowNum);
+            },
+            child: Container(
+              //color: Colors.blueAccent,
+              padding: const EdgeInsets.all(14),
+              child: const Text("YES"),
+            ),
+          ),
+        ],
+      );
+    },
+    );
+  }
+
+
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar( backgroundColor: Theme.of(context).colorScheme.inversePrimary, title: Text(widget.title)),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              //TextField for input;
-              TextField(controller: _controllerItem,
-                obscureText: false,
-                decoration: InputDecoration(
-                  hintText: "Type the item here",
-                  border: OutlineInputBorder(),
-                  labelText: "Items",
-                ),
-              ),
-
-              //TextField for password;
-              TextField(controller: _controllerQuantity,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: "Type the quantity here",
-                  border: OutlineInputBorder(),
-                  labelText: "Quantities",
-                ),
-              ),
-
-              //Login button;
-              ElevatedButton(onPressed: addItem,
-                  child: Text('Click here')),
-
-              ListPage(),
-            ],
-          ),
+        appBar: AppBar(
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            title: Text(widget.title),
         ),
+        body: Center(
+          child: Padding(padding: EdgeInsets.symmetric(horizontal: 20),
+
+          child: Column(
+              //mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: 20,),
+                //row for the inputs;
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    //TextField for input;
+                    Flexible(
+                      //fit: FlexFit.loose,
+                      child:
+                    TextField(controller: _controllerItem,
+                      obscureText: false,
+                      decoration: InputDecoration(
+                        hintText: "Items",
+                        border: OutlineInputBorder(),
+                        labelText: "Type the item here",
+                      ),
+                    ),
+                    ),
+
+                    //TextField for password;
+                    Flexible(
+                      //fit: FlexFit.loose,
+                      child:
+                    TextField(controller: _controllerQuantity,
+                      obscureText: false,
+                      decoration: InputDecoration(
+                        hintText: "Quantities",
+                        border: OutlineInputBorder(),
+                        labelText: "Type the quantity here",
+                      ),
+                    ),),
+
+
+                    //Click here button;
+                    ElevatedButton(onPressed: addItem,
+                        child: Text('Click here')),
+
+                  ],
+                ),
+                SizedBox(height: 20,),
+                //rows for the added items to the list;
+                Flexible(
+                    fit: FlexFit.loose,
+                    child: ListPage(context)),
+              ]
+          ),
+
+        ),
+
+        ),
+
     );
   }
 
   void addItem() {
     setState(() {
-      wordsArray.add("${wordsArray.length+1}: "+ _controllerItem.text +" quantity: "+_controllerQuantity.text);
+      wordsArray.add( _controllerItem.text +" quantity: "+_controllerQuantity.text);
+      _controllerItem.text = '';
+      _controllerQuantity.text = '';
     });
   }
 
-  Widget ListPage(){
+  Widget ListPage(BuildContext context){
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Expanded(child:
-          ListView.builder(
-              itemCount:wordsArray.length,
-              itemBuilder: (context, rowNum) { return
-                Row( mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children:[
-                      Text("${1+rowNum}: ${wordsArray[rowNum]} "),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            wordsArray[rowNum] = wordsArray[rowNum].toUpperCase();
-                          });
-                        },
-                        child: const Icon(Icons.arrow_upward),
-                      ),
-                      GestureDetector(
-                        onDoubleTap: () {
-                          setState(() {
-                            wordsArray[rowNum] = wordsArray[rowNum].toLowerCase();
-                          });
-                        },
-                        child: const Icon(Icons.arrow_downward),
-                      ),
-                      GestureDetector(
-                        onLongPress: () {
-                          setState(() {
-                            wordsArray.removeAt(rowNum);
-                          });
-                        },
-                        child: const Icon(Icons.delete),
-                      ),
-                    ]
-                );
-              }
-          ),
-          ),
-        ],
-      ),
+        child:Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child:
+                ListView.builder(
+                    itemCount:wordsArray.length,
+                    itemBuilder: (context, rowNum) { return
+                      Row( mainAxisAlignment: MainAxisAlignment.center,
+                          children:[
+                            GestureDetector(
+                              onDoubleTap: () {
+                                setState(() {
+                                  displayDialog(context,rowNum);
+                                    //wordsArray.removeAt(rowNum);
+                                    //_processYES(context, rowNum);
+                                });},
+                              child: Text("${1+rowNum}: ${wordsArray[rowNum]} "),
+                            ),
+                          ]
+                      );
+                    }),
+            ),
+          ],
+        ),
     );
   }
 }
