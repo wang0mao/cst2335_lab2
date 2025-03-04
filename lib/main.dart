@@ -70,9 +70,8 @@ void _processOK(context){
   Navigator.of(context).pop();
 }
 
-  void displayTextDialog(BuildContext context) {
-    showDialog(context: context, builder: (BuildContext context)
-    {
+void displayTextDialog(BuildContext context) {
+    showDialog(context: context, builder: (BuildContext context) {
       return AlertDialog(
         title: const Text('EMPTY'),
         content: const Text('There are no items in the list'),
@@ -174,7 +173,7 @@ void _processOK(context){
 
                     //Click here button;
                     ElevatedButton(onPressed: addItem,
-                        child: Text('Click here')),
+                        child: Text('Add to List')),
 
                   ],
                 ),
@@ -214,7 +213,7 @@ void _processOK(context){
                       Row( mainAxisAlignment: MainAxisAlignment.center,
                           children:[
                             GestureDetector(
-                              onDoubleTap: () {
+                              onLongPress: () {
                                 setState(() {
                                   displayDialog(context,rowNum);
                                     //wordsArray.removeAt(rowNum);
