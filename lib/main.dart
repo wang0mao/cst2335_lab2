@@ -1,4 +1,4 @@
-
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -61,15 +61,85 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       wordsArray.removeAt(rowNum);
       if (wordsArray.isEmpty) {
-        displayTextDialog(context);
+        //displayTextDialog(context);
+        showEmptySnackBar();
       }
     });
 
   }
-void _processOK(context){
-  Navigator.of(context).pop();
-}
+  /*
+  void _processOK(context){
+    Navigator.of(context).pop();
+  }
+  */
 
+  void showEmptySnackBar() {
+    setState(() {
+/*
+      snackBar = SnackBar(
+          content: Text('This is a SnackBar!'),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: 50,left:10,right:10,top:0),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () {
+              // Some code to undo the change.
+            },
+          ));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+*/
+
+      Flushbar(
+        //animationDuration: Duration(seconds: 4),
+        //forwardAnimationCurve: Curves.easeIn,
+        //reverseAnimationCurve: Curves.easeOut,
+        duration: Duration(seconds: 2),
+        flushbarPosition: FlushbarPosition.TOP,
+        flushbarStyle: FlushbarStyle.FLOATING,
+        message: "There are no items in the list",
+        //margin: EdgeInsets.symmetric(vertical: 40),
+
+      ).show(context);
+
+
+    }
+    );
+  }
+  void showInvalidSnackBar() {
+    setState(() {
+/*
+      snackBar = SnackBar(
+          content: Text('This is a SnackBar!'),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: 50,left:10,right:10,top:0),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () {
+              // Some code to undo the change.
+            },
+          ));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+*/
+
+      Flushbar(
+        //animationDuration: Duration(seconds: 4),
+        //forwardAnimationCurve: Curves.easeIn,
+        //reverseAnimationCurve: Curves.easeOut,
+        duration: Duration(seconds: 2),
+        flushbarPosition: FlushbarPosition.TOP,
+        flushbarStyle: FlushbarStyle.FLOATING,
+        message: "Invalid Inputs",
+        //margin: EdgeInsets.symmetric(vertical: 40),
+
+      ).show(context);
+
+
+    }
+    );
+  }
+/*
 void displayTextDialog(BuildContext context) {
     showDialog(context: context, builder: (BuildContext context) {
       return AlertDialog(
@@ -90,10 +160,10 @@ void displayTextDialog(BuildContext context) {
     },
     );
   }
-
+*/
   void displayDialog(BuildContext context,int rowNum) {
     showDialog(context: context, builder: (BuildContext context)
-      {
+    {
       return AlertDialog(
         title: const Text('Delete or Not?'),
         content: const Text('Press YES or NO to delete.'),
@@ -124,18 +194,18 @@ void displayTextDialog(BuildContext context) {
   }
 
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: Text(widget.title),
-        ),
-        body: Center(
-          child: Padding(padding: EdgeInsets.symmetric(horizontal: 20),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Padding(padding: EdgeInsets.symmetric(horizontal: 20),
 
           child: Column(
-              //mainAxisSize: MainAxisSize.min,
+            //mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 SizedBox(height: 20,),
@@ -147,34 +217,31 @@ void displayTextDialog(BuildContext context) {
                     Flexible(
                       //fit: FlexFit.loose,
                       child:
-                    TextField(controller: _controllerItem,
-                      obscureText: false,
-                      decoration: InputDecoration(
-                        hintText: "Items",
-                        border: OutlineInputBorder(),
-                        labelText: "Type the item here",
+                      TextField(controller: _controllerItem,
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          hintText: "Items",
+                          border: OutlineInputBorder(),
+                          labelText: "Type the item here",
+                        ),
                       ),
-                    ),
                     ),
 
                     //TextField for password;
                     Flexible(
                       //fit: FlexFit.loose,
                       child:
-                    TextField(controller: _controllerQuantity,
-                      obscureText: false,
-                      decoration: InputDecoration(
-                        hintText: "Quantities",
-                        border: OutlineInputBorder(),
-                        labelText: "Type the quantity here",
-                      ),
-                    ),),
-
-
+                      TextField(controller: _controllerQuantity,
+                        obscureText: false,
+                        decoration: InputDecoration(
+                          hintText: "Quantities",
+                          border: OutlineInputBorder(),
+                          labelText: "Type the quantity here",
+                        ),
+                      ),),
                     //Click here button;
                     ElevatedButton(onPressed: addItem,
                         child: Text('Add to List')),
-
                   ],
                 ),
                 SizedBox(height: 20,),
@@ -184,49 +251,58 @@ void displayTextDialog(BuildContext context) {
                     child: ListPage(context)),
               ]
           ),
-
         ),
-
-        ),
-
+      ),
     );
+  }
+
+  bool isOnlyNumbers(String text) {
+    return RegExp(r'^\d+$').hasMatch(text);
   }
 
   void addItem() {
     setState(() {
-      wordsArray.add( _controllerItem.text +" quantity: "+_controllerQuantity.text);
-      _controllerItem.text = '';
-      _controllerQuantity.text = '';
+      if(_controllerItem.text =='' || _controllerQuantity.text == '' || ( !isOnlyNumbers(_controllerQuantity.text)))
+      {
+        showInvalidSnackBar();
+        _controllerItem.text ='';
+        _controllerQuantity.text = '';
+      }
+      else{
+        wordsArray.add( _controllerItem.text +" quantity: "+_controllerQuantity.text);
+        _controllerItem.text = '';
+        _controllerQuantity.text = '';
+      }
     });
   }
 
   Widget ListPage(BuildContext context){
     return Center(
-        child:Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child:
-                ListView.builder(
-                    itemCount:wordsArray.length,
-                    itemBuilder: (context, rowNum) { return
-                      Row( mainAxisAlignment: MainAxisAlignment.center,
-                          children:[
-                            GestureDetector(
-                              onLongPress: () {
-                                setState(() {
-                                  displayDialog(context,rowNum);
-                                    //wordsArray.removeAt(rowNum);
-                                    //_processYES(context, rowNum);
-                                });},
-                              child: Text("${1+rowNum}: ${wordsArray[rowNum]} "),
-                            ),
-                          ]
-                      );
-                    }),
-            ),
-          ],
-        ),
+      child:Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Expanded(
+            child:
+            ListView.builder(
+                itemCount:wordsArray.length,
+                itemBuilder: (context, rowNum) { return
+                  Row( mainAxisAlignment: MainAxisAlignment.center,
+                      children:[
+                        GestureDetector(
+                          onLongPress: () {
+                            setState(() {
+                              displayDialog(context,rowNum);
+                              //wordsArray.removeAt(rowNum);
+                              //_processYES(context, rowNum);
+                            });},
+                          child: Text("${1+rowNum}: ${wordsArray[rowNum]} "),
+                        ),
+                      ]
+                  );
+                }),
+          ),
+        ],
+      ),
     );
   }
 }
