@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(title: 'Week 6 - ListView'),
+      home: const MyHomePage(title: 'Week 7 - Sqlite'),
     );
   }
 }
