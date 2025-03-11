@@ -1,5 +1,8 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'ShoppingListDAO.dart';
+import 'ShoppingList.dart';
+import 'database.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,6 +21,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      debugShowCheckedModeBanner: false,
       home: const MyHomePage(title: 'Week 6 - ListView'),
     );
   }
@@ -32,7 +36,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var wordsArray = <String>[ ];
+  List<ShoppingList> shoppingList = <ShoppingList>[];
+  late ShoppingListDAO taskDAO;
+
+  //var wordsArray = <String>[ ];
   late TextEditingController _controllerItem;
   late TextEditingController _controllerQuantity;
 
@@ -42,6 +49,19 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _controllerItem = TextEditingController();
     _controllerQuantity = TextEditingController();
+
+    $FloorShoppingListDatabase
+        .databaseBuilder('todo_database.db')
+        .build()
+        .then((database) async { //Note the use of async here
+      taskDAO = database.shoppingListDAO;
+      //get Items from database:
+      var it = await taskDAO.getAllItems();
+      setState(() {
+        shoppingList = it;
+      });
+    });
+
   }
 
   @override
@@ -55,41 +75,22 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.of(context).pop();
   }
 
-  void _processYES(BuildContext context,int rowNum){
+  void _processYES(BuildContext context,int rowNum) async{
     Navigator.of(context).pop();
 
-    setState(() {
-      wordsArray.removeAt(rowNum);
-      if (wordsArray.isEmpty) {
-        //displayTextDialog(context);
-        showEmptySnackBar();
-      }
-    });
+      taskDAO.deleteList(shoppingList[rowNum]);
+      var it = await taskDAO.getAllItems();
+      setState(() {
+        shoppingList = it;
+        if (shoppingList.isEmpty) {
+          showEmptySnackBar();
+        }
+      });
+  }
 
-  }
-  /*
-  void _processOK(context){
-    Navigator.of(context).pop();
-  }
-  */
 
   void showEmptySnackBar() {
     setState(() {
-/*
-      snackBar = SnackBar(
-          content: Text('This is a SnackBar!'),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.only(bottom: 50,left:10,right:10,top:0),
-          action: SnackBarAction(
-            label: 'Undo',
-            onPressed: () {
-              // Some code to undo the change.
-            },
-          ));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-*/
-
       Flushbar(
         //animationDuration: Duration(seconds: 4),
         //forwardAnimationCurve: Curves.easeIn,
@@ -101,28 +102,11 @@ class _MyHomePageState extends State<MyHomePage> {
         //margin: EdgeInsets.symmetric(vertical: 40),
 
       ).show(context);
-
-
     }
     );
   }
   void showInvalidSnackBar() {
     setState(() {
-/*
-      snackBar = SnackBar(
-          content: Text('This is a SnackBar!'),
-          duration: const Duration(seconds: 2),
-          behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.only(bottom: 50,left:10,right:10,top:0),
-          action: SnackBarAction(
-            label: 'Undo',
-            onPressed: () {
-              // Some code to undo the change.
-            },
-          ));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-*/
-
       Flushbar(
         //animationDuration: Duration(seconds: 4),
         //forwardAnimationCurve: Curves.easeIn,
@@ -134,34 +118,12 @@ class _MyHomePageState extends State<MyHomePage> {
         //margin: EdgeInsets.symmetric(vertical: 40),
 
       ).show(context);
-
-
     }
     );
   }
-/*
-void displayTextDialog(BuildContext context) {
-    showDialog(context: context, builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('EMPTY'),
-        content: const Text('There are no items in the list'),
-        actions: <Widget>[
-          TextButton(
-              onPressed: () {
-                _processOK(context);
-              },
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                child: const Text('Okay'),
-              )
-          ),
-        ],
-      );
-    },
-    );
-  }
-*/
+
   void displayDialog(BuildContext context,int rowNum) {
+    //String rows = rowNum.toString();
     showDialog(context: context, builder: (BuildContext context)
     {
       return AlertDialog(
@@ -184,7 +146,7 @@ void displayTextDialog(BuildContext context) {
             child: Container(
               //color: Colors.blueAccent,
               padding: const EdgeInsets.all(14),
-              child: const Text("YES"),
+              child:  Text("YES "),
             ),
           ),
         ],
@@ -197,10 +159,10 @@ void displayTextDialog(BuildContext context) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
+      //appBar: AppBar(
+      //  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      //  title: Text(widget.title),
+      //),
       body: Center(
         child: Padding(padding: EdgeInsets.symmetric(horizontal: 20),
 
@@ -248,7 +210,7 @@ void displayTextDialog(BuildContext context) {
                 //rows for the added items to the list;
                 Flexible(
                     fit: FlexFit.loose,
-                    child: ListPage(context)),
+                    child: listPage(context)),
               ]
           ),
         ),
@@ -260,8 +222,7 @@ void displayTextDialog(BuildContext context) {
     return RegExp(r'^\d+$').hasMatch(text);
   }
 
-  void addItem() {
-    setState(() {
+  void addItem() async {
       if(_controllerItem.text =='' || _controllerQuantity.text == '' || ( !isOnlyNumbers(_controllerQuantity.text)))
       {
         showInvalidSnackBar();
@@ -269,14 +230,19 @@ void displayTextDialog(BuildContext context) {
         _controllerQuantity.text = '';
       }
       else{
-        wordsArray.add( _controllerItem.text +" quantity: "+_controllerQuantity.text);
-        _controllerItem.text = '';
-        _controllerQuantity.text = '';
+        String newList = _controllerItem.text +" quantity: "+_controllerQuantity.text;
+        var newItem = ShoppingList( null, newList) ;
+        await taskDAO.insertList(newItem);
+        var it = await taskDAO.getAllItems();
+        setState(() {
+          shoppingList = it;
+        });
+        _controllerItem.clear();
+        _controllerQuantity.clear();
       }
-    });
   }
 
-  Widget ListPage(BuildContext context){
+  Widget listPage(BuildContext context){
     return Center(
       child:Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -284,7 +250,7 @@ void displayTextDialog(BuildContext context) {
           Expanded(
             child:
             ListView.builder(
-                itemCount:wordsArray.length,
+                itemCount: shoppingList.length,
                 itemBuilder: (context, rowNum) { return
                   Row( mainAxisAlignment: MainAxisAlignment.center,
                       children:[
@@ -292,10 +258,8 @@ void displayTextDialog(BuildContext context) {
                           onLongPress: () {
                             setState(() {
                               displayDialog(context,rowNum);
-                              //wordsArray.removeAt(rowNum);
-                              //_processYES(context, rowNum);
                             });},
-                          child: Text("${1+rowNum}: ${wordsArray[rowNum]} "),
+                          child: Text((rowNum+1).toString()+" : ${shoppingList[rowNum].shoppingListItem} "),
                         ),
                       ]
                   );
