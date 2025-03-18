@@ -143,9 +143,8 @@ Widget detailsPage() {
       //update GUI:
        String oldItem = selectedItem!.todoItem;
        dao.deleteItem(selectedItem!);
-      var it = await dao.getAllItems();
+      todoList.remove(selectedItem!);
       setState(() {
-         todoList = it;
          var snackBar = SnackBar(content: Text(oldItem+' have been removed.'),
              duration: const Duration(seconds: 1)
          );
