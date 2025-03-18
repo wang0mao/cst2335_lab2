@@ -6,35 +6,33 @@ part of 'database.dart';
 // FloorGenerator
 // **************************************************************************
 
-abstract class $ShoppingListDatabaseBuilderContract {
+abstract class $ToDoDatabaseBuilderContract {
   /// Adds migrations to the builder.
-  $ShoppingListDatabaseBuilderContract addMigrations(
-      List<Migration> migrations);
+  $ToDoDatabaseBuilderContract addMigrations(List<Migration> migrations);
 
   /// Adds a database [Callback] to the builder.
-  $ShoppingListDatabaseBuilderContract addCallback(Callback callback);
+  $ToDoDatabaseBuilderContract addCallback(Callback callback);
 
   /// Creates the database and initializes it.
-  Future<ShoppingListDatabase> build();
+  Future<ToDoDatabase> build();
 }
 
 // ignore: avoid_classes_with_only_static_members
-class $FloorShoppingListDatabase {
+class $FloorToDoDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static $ShoppingListDatabaseBuilderContract databaseBuilder(String name) =>
-      _$ShoppingListDatabaseBuilder(name);
+  static $ToDoDatabaseBuilderContract databaseBuilder(String name) =>
+      _$ToDoDatabaseBuilder(name);
 
   /// Creates a database builder for an in memory database.
   /// Information stored in an in memory database disappears when the process is killed.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static $ShoppingListDatabaseBuilderContract inMemoryDatabaseBuilder() =>
-      _$ShoppingListDatabaseBuilder(null);
+  static $ToDoDatabaseBuilderContract inMemoryDatabaseBuilder() =>
+      _$ToDoDatabaseBuilder(null);
 }
 
-class _$ShoppingListDatabaseBuilder
-    implements $ShoppingListDatabaseBuilderContract {
-  _$ShoppingListDatabaseBuilder(this.name);
+class _$ToDoDatabaseBuilder implements $ToDoDatabaseBuilderContract {
+  _$ToDoDatabaseBuilder(this.name);
 
   final String? name;
 
@@ -43,24 +41,23 @@ class _$ShoppingListDatabaseBuilder
   Callback? _callback;
 
   @override
-  $ShoppingListDatabaseBuilderContract addMigrations(
-      List<Migration> migrations) {
+  $ToDoDatabaseBuilderContract addMigrations(List<Migration> migrations) {
     _migrations.addAll(migrations);
     return this;
   }
 
   @override
-  $ShoppingListDatabaseBuilderContract addCallback(Callback callback) {
+  $ToDoDatabaseBuilderContract addCallback(Callback callback) {
     _callback = callback;
     return this;
   }
 
   @override
-  Future<ShoppingListDatabase> build() async {
+  Future<ToDoDatabase> build() async {
     final path = name != null
         ? await sqfliteDatabaseFactory.getDatabasePath(name!)
         : ':memory:';
-    final database = _$ShoppingListDatabase();
+    final database = _$ToDoDatabase();
     database.database = await database.open(
       path,
       _migrations,
@@ -70,12 +67,12 @@ class _$ShoppingListDatabaseBuilder
   }
 }
 
-class _$ShoppingListDatabase extends ShoppingListDatabase {
-  _$ShoppingListDatabase([StreamController<String>? listener]) {
+class _$ToDoDatabase extends ToDoDatabase {
+  _$ToDoDatabase([StreamController<String>? listener]) {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
-  ShoppingListDAO? _shoppingListDAOInstance;
+  ToDoDAO? _toDoDAOInstance;
 
   Future<sqflite.Database> open(
     String path,
@@ -99,7 +96,7 @@ class _$ShoppingListDatabase extends ShoppingListDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `ShoppingList` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `shoppingListItem` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `ToDoItem` (`id` INTEGER NOT NULL, `todoItem` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -108,40 +105,33 @@ class _$ShoppingListDatabase extends ShoppingListDatabase {
   }
 
   @override
-  ShoppingListDAO get shoppingListDAO {
-    return _shoppingListDAOInstance ??=
-        _$ShoppingListDAO(database, changeListener);
+  ToDoDAO get toDoDAO {
+    return _toDoDAOInstance ??= _$ToDoDAO(database, changeListener);
   }
 }
 
-class _$ShoppingListDAO extends ShoppingListDAO {
-  _$ShoppingListDAO(
+class _$ToDoDAO extends ToDoDAO {
+  _$ToDoDAO(
     this.database,
     this.changeListener,
   )   : _queryAdapter = QueryAdapter(database),
-        _shoppingListInsertionAdapter = InsertionAdapter(
+        _toDoItemInsertionAdapter = InsertionAdapter(
             database,
-            'ShoppingList',
-            (ShoppingList item) => <String, Object?>{
-                  'id': item.id,
-                  'shoppingListItem': item.shoppingListItem
-                }),
-        _shoppingListUpdateAdapter = UpdateAdapter(
+            'ToDoItem',
+            (ToDoItem item) =>
+                <String, Object?>{'id': item.id, 'todoItem': item.todoItem}),
+        _toDoItemUpdateAdapter = UpdateAdapter(
             database,
-            'ShoppingList',
+            'ToDoItem',
             ['id'],
-            (ShoppingList item) => <String, Object?>{
-                  'id': item.id,
-                  'shoppingListItem': item.shoppingListItem
-                }),
-        _shoppingListDeletionAdapter = DeletionAdapter(
+            (ToDoItem item) =>
+                <String, Object?>{'id': item.id, 'todoItem': item.todoItem}),
+        _toDoItemDeletionAdapter = DeletionAdapter(
             database,
-            'ShoppingList',
+            'ToDoItem',
             ['id'],
-            (ShoppingList item) => <String, Object?>{
-                  'id': item.id,
-                  'shoppingListItem': item.shoppingListItem
-                });
+            (ToDoItem item) =>
+                <String, Object?>{'id': item.id, 'todoItem': item.todoItem});
 
   final sqflite.DatabaseExecutor database;
 
@@ -149,48 +139,39 @@ class _$ShoppingListDAO extends ShoppingListDAO {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<ShoppingList> _shoppingListInsertionAdapter;
+  final InsertionAdapter<ToDoItem> _toDoItemInsertionAdapter;
 
-  final UpdateAdapter<ShoppingList> _shoppingListUpdateAdapter;
+  final UpdateAdapter<ToDoItem> _toDoItemUpdateAdapter;
 
-  final DeletionAdapter<ShoppingList> _shoppingListDeletionAdapter;
+  final DeletionAdapter<ToDoItem> _toDoItemDeletionAdapter;
 
   @override
-  Future<List<ShoppingList>> getAllItems() async {
-    return _queryAdapter.queryList('SELECT * FROM ShoppingList',
+  Future<List<ToDoItem>> getAllItems() async {
+    return _queryAdapter.queryList('SELECT * FROM ToDoItem',
         mapper: (Map<String, Object?> row) =>
-            ShoppingList(row['id'] as int?, row['shoppingListItem'] as String));
+            ToDoItem(row['id'] as int, row['todoItem'] as String));
   }
 
   @override
-  Future<ShoppingList?> findListById(int id) async {
-    return _queryAdapter.query('SELECT * FROM ShoppingList WHERE ID = ?1',
+  Future<ToDoItem?> findItemById(int id) async {
+    return _queryAdapter.query('SELECT * FROM ToDoItem WHERE id = ?1',
         mapper: (Map<String, Object?> row) =>
-            ShoppingList(row['id'] as int?, row['shoppingListItem'] as String),
+            ToDoItem(row['id'] as int, row['todoItem'] as String),
         arguments: [id]);
   }
 
   @override
-  Future<ShoppingList?> findListByItem(String item) async {
-    return _queryAdapter.query(
-        'SELECT * FROM ShoppingList WHERE shoppingListItem = ?1',
-        mapper: (Map<String, Object?> row) =>
-            ShoppingList(row['id'] as int?, row['shoppingListItem'] as String),
-        arguments: [item]);
+  Future<void> insertItem(ToDoItem item) async {
+    await _toDoItemInsertionAdapter.insert(item, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> insertList(ShoppingList list) async {
-    await _shoppingListInsertionAdapter.insert(list, OnConflictStrategy.abort);
+  Future<void> updateItem(ToDoItem item) async {
+    await _toDoItemUpdateAdapter.update(item, OnConflictStrategy.abort);
   }
 
   @override
-  Future<void> updateIList(ShoppingList list) async {
-    await _shoppingListUpdateAdapter.update(list, OnConflictStrategy.abort);
-  }
-
-  @override
-  Future<void> deleteList(ShoppingList list) async {
-    await _shoppingListDeletionAdapter.delete(list);
+  Future<void> deleteItem(ToDoItem item) async {
+    await _toDoItemDeletionAdapter.delete(item);
   }
 }

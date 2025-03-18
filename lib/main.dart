@@ -1,11 +1,10 @@
-import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'ShoppingListDAO.dart';
-import 'ShoppingList.dart';
+import 'ToDoDAO.dart';
+import 'ToDoItem.dart';
 import 'database.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -15,20 +14,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CST2335 Labs',
+      title: 'CST2335 Samples',
       theme: ThemeData(
         // This is the theme of your application.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            secondary: Colors.green,
+            primary: Colors.red),
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(title: 'Week 7 - Sqlite'),
+      home: MyHomePage(title: 'Week 10 - Tablet and Phone Layout'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
+
   final String title;
 
   @override
@@ -36,237 +39,173 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<ShoppingList> shoppingList = <ShoppingList>[];
-  late ShoppingListDAO taskDAO;
+  List<ToDoItem> todoList = <ToDoItem>[];
+  late TextEditingController _inputController;
+  late ToDoDAO dao;
+  ToDoItem? selectedItem = null;
+  var isChecked = false;
 
-  //var wordsArray = <String>[ ];
-  late TextEditingController _controllerItem;
-  late TextEditingController _controllerQuantity;
+  @override //same as in java
+  void initState() {
+    super.initState(); //call the parent initState()
+    _inputController = TextEditingController();
 
-  @override
-
-  void initState(){
-    super.initState();
-    _controllerItem = TextEditingController();
-    _controllerQuantity = TextEditingController();
-
-    $FloorShoppingListDatabase
+    $FloorToDoDatabase
         .databaseBuilder('todo_database.db')
         .build()
-        .then((database) async { //Note the use of async here
-      taskDAO = database.shoppingListDAO;
+        .then((database) async {
+      dao = database.toDoDAO;
       //get Items from database:
-      var it = await taskDAO.getAllItems();
+      var it = await dao.getAllItems();
       setState(() {
-        shoppingList = it;
+        todoList = it; //Future<> , asynchronous
       });
     });
-
   }
 
   @override
-  void dispose(){
-    _controllerItem.dispose();
-    _controllerQuantity.dispose();
+  void dispose() {
     super.dispose();
+    _inputController.dispose();
   }
-
-  void _processNO(BuildContext context){
-    Navigator.of(context).pop();
-  }
-
-  void _processYES(BuildContext context,int rowNum) async{
-    Navigator.of(context).pop();
-
-      taskDAO.deleteList(shoppingList[rowNum]);
-      var it = await taskDAO.getAllItems();
-      setState(() {
-        shoppingList = it;
-        if (shoppingList.isEmpty) {
-          showEmptySnackBar();
-        }
-      });
-  }
-
-
-  void showEmptySnackBar() {
-    setState(() {
-      Flushbar(
-        //animationDuration: Duration(seconds: 4),
-        //forwardAnimationCurve: Curves.easeIn,
-        //reverseAnimationCurve: Curves.easeOut,
-        duration: Duration(seconds: 2),
-        flushbarPosition: FlushbarPosition.TOP,
-        flushbarStyle: FlushbarStyle.FLOATING,
-        message: "There are no items in the list",
-        //margin: EdgeInsets.symmetric(vertical: 40),
-
-      ).show(context);
-    }
-    );
-  }
-  void showInvalidSnackBar() {
-    setState(() {
-      Flushbar(
-        //animationDuration: Duration(seconds: 4),
-        //forwardAnimationCurve: Curves.easeIn,
-        //reverseAnimationCurve: Curves.easeOut,
-        duration: Duration(seconds: 2),
-        flushbarPosition: FlushbarPosition.TOP,
-        flushbarStyle: FlushbarStyle.FLOATING,
-        message: "Invalid Inputs",
-        //margin: EdgeInsets.symmetric(vertical: 40),
-
-      ).show(context);
-    }
-    );
-  }
-
-  void displayDialog(BuildContext context,int rowNum) {
-    //String rows = rowNum.toString();
-    showDialog(context: context, builder: (BuildContext context)
-    {
-      return AlertDialog(
-        title: const Text('Delete or Not?'),
-        content: const Text('Press YES or NO to delete.'),
-        actions: <Widget>[
-          TextButton(
-              onPressed: () {
-                _processNO(context);
-              },
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                child: const Text('NO'),
-              )
-          ),
-          TextButton(
-            onPressed: () {
-              _processYES(context, rowNum);
-            },
-            child: Container(
-              //color: Colors.blueAccent,
-              padding: const EdgeInsets.all(14),
-              child:  Text("YES "),
-            ),
-          ),
-        ],
-      );
-    },
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(
-      //  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      //  title: Text(widget.title),
-      //),
-      body: Center(
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 20),
-
-          child: Column(
-            //mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(height: 20,),
-                //row for the inputs;
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    //TextField for input;
-                    Flexible(
-                      //fit: FlexFit.loose,
-                      child:
-                      TextField(controller: _controllerItem,
-                        obscureText: false,
-                        decoration: InputDecoration(
-                          hintText: "Items",
-                          border: OutlineInputBorder(),
-                          labelText: "Type the item here",
-                        ),
-                      ),
-                    ),
-
-                    //TextField for password;
-                    Flexible(
-                      //fit: FlexFit.loose,
-                      child:
-                      TextField(controller: _controllerQuantity,
-                        obscureText: false,
-                        decoration: InputDecoration(
-                          hintText: "Quantities",
-                          border: OutlineInputBorder(),
-                          labelText: "Type the quantity here",
-                        ),
-                      ),),
-                    //Click here button;
-                    ElevatedButton(onPressed: addItem,
-                        child: Text('Add to List')),
-                  ],
-                ),
-                SizedBox(height: 20,),
-                //rows for the added items to the list;
-                Flexible(
-                    fit: FlexFit.loose,
-                    child: listPage(context)),
-              ]
-          ),
-        ),
-      ),
-    );
+        appBar: AppBar(
+            backgroundColor: Theme
+                .of(context)
+                .colorScheme
+                .inversePrimary,
+            title: Text(widget.title)),
+        body: reactiveLayout(),
+        floatingActionButton: FloatingActionButton(
+            onPressed: addItem,
+            tooltip: 'Add Item',
+            child: const Icon(Icons.add)));
   }
 
-  bool isOnlyNumbers(String text) {
-    return RegExp(r'^\d+$').hasMatch(text);
+  void addItem() {
+    if (_inputController.text.isNotEmpty) {
+      setState(() {
+        var newItem = ToDoItem(ToDoItem.ID++, _inputController.text);
+        todoList.add(newItem);
+        dao.insertItem(newItem);
+        _inputController.clear();
+      });
+    } else {
+      var snackBar = SnackBar(content: Text('Input field is required'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
-  void addItem() async {
-      if(_controllerItem.text =='' || _controllerQuantity.text == '' || ( !isOnlyNumbers(_controllerQuantity.text)))
-      {
-        showInvalidSnackBar();
-        _controllerItem.text ='';
-        _controllerQuantity.text = '';
-      }
-      else{
-        String newList = _controllerItem.text +" quantity: "+_controllerQuantity.text;
-        var newItem = ShoppingList( null, newList) ;
-        await taskDAO.insertList(newItem);
-        var it = await taskDAO.getAllItems();
-        setState(() {
-          shoppingList = it;
-        });
-        _controllerItem.clear();
-        _controllerQuantity.clear();
-      }
+  Widget reactiveLayout() {
+    var size = MediaQuery
+        .sizeOf(context);
+    var height = size.height;
+    var width = size.width;
+
+    if ((width > height) && (width > 720)) //landscape// {
+     {
+      return Row(children: [
+        Expanded(flex: 1, child: toDoList()),
+        Expanded(flex: 2, child: detailsPage())
+      ]);
   }
 
-  Widget listPage(BuildContext context){
-    return Center(
-      child:Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Expanded(
-            child:
-            ListView.builder(
-                itemCount: shoppingList.length,
-                itemBuilder: (context, rowNum) { return
-                  Row( mainAxisAlignment: MainAxisAlignment.center,
-                      children:[
-                        GestureDetector(
-                          onLongPress: () {
-                            setState(() {
-                              displayDialog(context,rowNum);
-                            });},
-                          child: Text((rowNum+1).toString()+" : ${shoppingList[rowNum].shoppingListItem} "),
-                        ),
-                      ]
-                  );
-                }),
-          ),
-        ],
-      ),
-    );
+  else //portrait mode
+  {
+    if (selectedItem == null)
+      return toDoList();
+    else { //something is selected
+      return detailsPage();
+    }
   }
+}
+
+Widget detailsPage() {
+  TextStyle mystyle = TextStyle(fontSize: 40.0);
+
+  return Column(children: [
+    //selectedItem!.todoItem
+    if(selectedItem == null)
+      Text("Please select something from the list", style: mystyle)
+    else
+      Text("You selected:" + selectedItem.toString(), style: mystyle)
+    ,
+    ElevatedButton(child: Text("Ok"), onPressed: () {
+      //update GUI:
+      setState(() {
+        selectedItem = null; //clear the selection
+      });
+    }),
+    ElevatedButton(child: Text("Delete"), onPressed: ()  async{
+      //update GUI:
+       String oldItem = selectedItem!.todoItem;
+       dao.deleteItem(selectedItem!);
+      var it = await dao.getAllItems();
+      setState(() {
+         todoList = it;
+         var snackBar = SnackBar(content: Text(oldItem+' have been removed.'),
+             duration: const Duration(seconds: 1)
+         );
+         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+         selectedItem = null;
+         //clear the selection
+      });
+    })
+  ]);
+}
+
+Widget toDoList() {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Row(children: [
+          Flexible(child:
+          TextField(controller: _inputController,
+            decoration: InputDecoration(
+              hintText: "Type a task here",
+              labelText: "Add a task",
+              border: OutlineInputBorder(),
+            ),
+          )),
+
+          ElevatedButton(onPressed: () {
+            //what was typed is:
+            var input = _inputController.value.text;
+            //generate UNIQUE ids
+            var todoItem = ToDoItem(ToDoItem.ID++, input);
+            dao.insertItem(todoItem);
+
+            setState(() { //redraw the GUI
+
+              todoList.add(todoItem); //add the item to the LIST
+
+              _inputController.text = ""; //reset the textField
+            });
+          }, //Lambda, or anonymous function
+            child: Text("Add ToDO"),)
+        ],),
+        Flexible(child:
+        ListView.builder(
+            itemCount: todoList.length,
+            itemBuilder: (ctx, rowNum) {
+              return
+                GestureDetector(
+                    onTap: () {
+                      setState(() { //redraw the GUI:
+                        selectedItem = todoList[rowNum];
+                      });
+                    },
+                    child:
+                    Text("Item $rowNum = ${todoList[rowNum].todoItem }",
+                      style: TextStyle(fontSize: 30.0),));
+            }))
+      ],
+    ),
+  );
+} //end of reactiveLayout()
+
 }
